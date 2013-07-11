@@ -1,7 +1,7 @@
-[Gedit Plugin]
-Loader=python
+[Plugin]
+Loader=python3
 Module=codecompletion
-IAge=2
+IAge=3
 Name=Evolved Code Completion
 Description=A code completion framework based on a json library.
 Authors=Fabio Zendhi Nagao <nagaozen@hotmail.com>\nhttp://zend.lojcomm.com.br/

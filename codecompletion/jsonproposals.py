@@ -16,12 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import gtksourceview2 as gsv
-import gobject
+from gi.repository import GObject
+from gi.repository import GtkSourceView2 as gsv
 
-class JSONProposal(gobject.GObject, gsv.CompletionProposal):
+class JSONProposal(GObject.Object, gsv.CompletionProposal):
     def __init__(self, name):
-        gobject.GObject.__init__(self)
+        Gobject.GObject.__init__(self)
         
         self.name = name
     

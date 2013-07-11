@@ -16,26 +16,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import gtk
-import gedit
+from gi.repository import GObject, Gedit, Gtk
+from gi.repository import GtkSourceView2 as gsv
 
 from gettext import gettext as _
 
-import gobject
-import gtksourceview2 as gsv
-import json
+import simplejson as json
 
-from jsonproposals import JSONProposal
+import jsonproposals
 
 import re
 import os
 import utils
 
-class JSONProvider(gobject.GObject, gsv.CompletionProvider):
+class JSONProvider(GObject.Object, gsv.CompletionProvider):
     MARK_NAME = 'JSONProviderCompletionMark'
     
     def __init__(self, plugin):
-        gobject.GObject.__init__(self)
+        Gobject.GObject.__init__(self)
         
         self.mark = None
         self._plugin = plugin

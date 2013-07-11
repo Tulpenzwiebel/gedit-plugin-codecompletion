@@ -16,66 +16,62 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import gedit
-import jsonprovider
+from gi.repository import GObject, Gtk, Gedit
 
-class JSONCompletionWindowHelper:
-    def __init__(self, plugin, window):
-        self._window = window
-        self._plugin = plugin
-        
-        self._provider = jsonprovider.JSONProvider(plugin)
-        
+class CodeCompletionWindowActivateable(GObject.Object, Gedit.WindowActivatable):
+    __gtype_name__  = "CodeCompletionWindowActivateable"
+
+    window = GObject.property(type=Gedit.Window)
+
+    def __init__(self):
+        GObject.Object.__init__(self)
+        self.provider = jsonprovider.JSONProvider(self)
+
         # Add the provider to all the views
-        for view in self._window.get_views():
-            self.add_view(view)
+        for view in self.window.get_views():
+            view.get_completion().add_provider(self.provider)
         
-        self._tab_added_id = self._window.connect('tab-added', self.on_tab_added)
-        self._tab_removed_id = self._window.connect('tab-removed', self.on_tab_removed)
-    
-    def deactivate(self):
-        # Remove the provider from all the views
-        for view in self._window.get_views():
-            view.get_completion().completion.remove_provider(self._provider)
-        
-        self._window.disconnect(self._tab_added_id)
-        self._window.disconnect(self._tab_removed_id)
-        
-        self._window = None
-        self._plugin = None
-    
-    def update_ui(self):
-        pass
-    
-    def add_view(self, view):
-        view.get_completion().add_provider(self._provider)
-    
-    def remove_view(self, view):
-        view.get_completion().remove_provider(self._provider)
-    
-    def on_tab_added(self, window, tab):
-        # Add provider to the new view
-        self.add_view(tab.get_view())
-    
-    def on_tab_removed(self, window, tab):
-        # Remove provider from the view
-        self.remove_view(tab.get_view())
+        self.tab_added_id = self.window.connect('tab-added', self.callback_on_tab_added)
+        self.tab_removed_id = self.window.connect('tab-removed', self.callback_on_tab_removed)
 
-class JSONCompletionPlugin(gedit.Plugin):
-    WINDOW_DATA_KEY = "JSONCompletionPluginWindowData"
+    def do_deactivate(self):
+        # Remove the provider from all the views
+        for view in self.window.get_views():
+            view.get_completion().remove_provider(self.provider)
+
+        self.window.disconnect(self.tab_added_id)
+        self.window.disconnect(self.tab_removed_id)
+
+    def do_update_state(self):
+        pass
+
+    def callback_on_tab_added(self, window, tab):
+        tab.get_view().get_completion().add_provider(self.provider)
+
+    def callback_on_tab_removed(self, window, tab):
+        tab.get_view().get_completion().remove_provider(self.provider)
+
+
+class CodeCompletionViewActivateable(GObject.Object, Gedit.ViewActivatable):
+    __gtype_name__ = "CodeCompletionViewActivateable"
+    view = GObject.property(type=Gedit.View)
+    window = GObject.property(type=Gedit.Window)
+#    WINDOW_DATA_KEY = "JSONCompletionPluginWindowData"
     
     def __init__(self):
-        gedit.Plugin.__init__(self)
+        GObject.Object.__init__(self)
     
-    def activate(self, window):
-        helper = JSONCompletionWindowHelper(self, window)
-        window.set_data(self.WINDOW_DATA_KEY, helper)
+    def do_activate(self):
+        print ("do_activate view " + str(self.window))
+        #helper = CodeCompletionWindowActivateable(self, self.window)
+        #self.window.set_data(self.WINDOW_DATA_KEY, helper)
     
-    def deactivate(self, window):
-        window.get_data(self.WINDOW_DATA_KEY).deactivate()
-        window.set_data(self.WINDOW_DATA_KEY, None)
+    def do_deactivate(self):
+        print ("do_deactivate view " + str(self.window))
+        #self.window.get_data(self.WINDOW_DATA_KEY).deactivate()
+        #self.window.set_data(self.WINDOW_DATA_KEY, None)
     
-    def update_ui(self, window):
-        window.get_data(self.WINDOW_DATA_KEY).update_ui()
+#    def do_update_state(self, window):
+#        self.window.update_ui()
 
 # ex:ts=4:et:
