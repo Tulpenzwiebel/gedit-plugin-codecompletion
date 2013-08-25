@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gi.repository import GObject, Gtk, Gedit
+import jsonprovider
 
 class CodeCompletionWindowActivateable(GObject.Object, Gedit.WindowActivatable):
     __gtype_name__  = "CodeCompletionWindowActivateable"
